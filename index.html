@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DanielPro Technologies</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#7c3aed">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #fff7ed;
+      color: #1f2937;
+    }
+
+    header {
+      background: linear-gradient(135deg, #7c3aed, #ec4899, #f97316);
+      color: white;
+      padding: 28px 16px 40px;
+      text-align: center;
+      border-radius: 0 0 28px 28px;
+    }
+    .univ {
+      display: inline-block;
+      background: rgba(255,255,255,0.25);
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+    header h1 { font-size: 26px; }
+    header p { margin-top: 6px; font-size: 14px; opacity: 0.95; }
+
+    main { max-width: 500px; margin: -24px auto 0; padding: 0 16px 16px; }
+
+    .carte {
+      background: white;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 14px rgba(124,58,237,0.15);
+    }
+    .carte h2 { font-size: 18px; margin-bottom: 4px; }
+
+    .stats { display: flex; gap: 10px; }
+    .stat {
+      flex: 1;
+      text-align: center;
+      padding: 12px 6px;
+      border-radius: 12px;
+      color: white;
+      font-size: 13px;
+    }
+    .stat b { display: block; font-size: 24px; }
+    .s1 { background: #7c3aed; }
+    .s2 { background: #10b981; }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border-radius: 10px;
+      border: 2px solid #e5e7eb;
+      font-size: 16px;
+    }
+    input:focus { outline: none; border-color: #ec4899; }
+
+    label { display: block; margin-top: 10px; font-size: 13px; color: #6b7280; }
+    label input { margin-top: 4px; }
+
+    #btnAjouter, #btnActiver {
+      width: 100%;
+      padding: 14px;
+      margin-top: 12px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      color: white;
+    }
+    #btnAjouter { background: linear-gradient(135deg, #ec4899, #f97316); }
+    #btnActiver { background: #7c3aed; }
+    #btnAjouter:active, #btnActiver:active { transform: scale(0.97); }
+
+    .devoir {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      margin-top: 10px;
+      border-radius: 12px;
+      background: #f9fafb;
+      border-left: 5px solid #10b981;
+    }
+    .devoir.retard { border-left-color: #ef4444; }
+    .devoir.aujourdhui { border-left-color: #f97316; }
+    .devoir.fait { opacity: 0.5; }
+    .devoir.fait .titre { text-decoration: line-through; }
+
+    .infos { flex: 1; }
+    .titre { font-weight: bold; }
+    .date { font-size: 13px; color: #6b7280; }
+
+    .petit {
+      border: none;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 16px;
+      color: white;
+    }
+    .valider { background: #10b981; }
+    .supprimer { background: #ef4444; }
+
+    .vide { text-align: center; color: #9ca3af; padding: 16px 0; }
+
+    /* Écran d'alarme */
+    #alarme {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      background: linear-gradient(135deg, #7c3aed, #ec4899, #f97316);
+      color: white;
+      text-align: center;
+      padding: 24px;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    #alarme .cloche { font-size: 72px; animation: tremble 0.5s infinite; }
+    #alarme h2 { font-size: 28px; margin: 16px 0 8px; }
+    #alarme p { font-size: 18px; margin-bottom: 24px; }
+    #alarme button {
+      padding: 14px 40px;
+      border: none;
+      border-radius: 30px;
+      font-size: 18px;
+      font-weight: bold;
+      background: white;
+      color: #7c3aed;
+    }
+    @keyframes tremble {
+      0%, 100% { transform: rotate(-12deg); }
+      50% { transform: rotate(12deg); }
+    }
+
+    footer {
+      text-align: center;
+      font-size: 13px;
+      color: #6b7280;
+      padding: 16px 16px 30px;
+    }
+    footer b { color: #7c3aed; }
+  </style>
+</head>
+
+<body>
+  <div id="alarme">
+    <div class="cloche">⏰</div>
+    <h2>Rappel !</h2>
+    <p id="texteAlarme"></p>
+    <button id="btnStop">OK, j'ai vu</button>
+  </div>
+
+  <header>
+    <div class="univ">🎓 UCBC</div>
+    <h1>DanielPro Technologies</h1>
+    <p>Ton organisation d'étudiant, simple et efficace</p>
+  </header>
+
+  <main>
+    <section class="carte">
+      <div class="stats">
+        <div class="stat s1"><b id="nbAFaire">0</b>À faire</div>
+        <div class="stat s2"><b id="nbFaits">0</b>Terminés</div>
+      </div>
+      <button id="btnActiver">🔔 Activer les alarmes</button>
+    </section>
+
+    <section class="carte">
+      <h2>✏️ Nouveau devoir</h2>
+      <input type="text" id="titre" placeholder="Ex : Exposé de maths">
+      <label>Date
+        <input type="date" id="date">
+      </label>
+      <label>Heure du rappel
+        <input type="time" id="heure">
+      </label>
+      <button id="btnAjouter">➕ Ajouter</button>
+    </section>
+
+    <section class="carte">
+      <h2>📚 Mes devoirs</h2>
+      <div id="liste"></div>
+    </section>
+  </main>
+
+  <footer>
+    Étudiants de l'<b>UCBC</b> 🎓<br>
+    Développé par <b>Daniel Mwaka Mulekya</b><br>
+    © 2026 DanielPro Technologies
+  </footer>
+
+  <script>
+    // ---------- Données ----------
+    let devoirs = [];
+    try {
+      devoirs = JSON.parse(localStorage.getItem("devoirs")) || [];
+    } catch (e) {
+      devoirs = [];
+    }
+
+    function sauvegarder() {
+      try {
+        localStorage.setItem("devoirs", JSON.stringify(devoirs));
+      } catch (e) {}
+    }
+
+    function echapper(texte) {
+      const d = document.createElement("div");
+      d.textContent = texte;
+      return d.innerHTML;
+    }
+
+    function dateDuJour() {
+      return new Date().toLocaleDateString("en-CA");
+    }
+
+    // ---------- Affichage ----------
+    function afficher() {
+      const liste = document.getElementById("liste");
+      const aujourdhui = dateDuJour();
+      liste.innerHTML = "";
+
+      if (devoirs.length === 0) {
+        liste.innerHTML = '<p class="vide">Aucun devoir. Profite ! 😎</p>';
+      }
+
+      devoirs.forEach(function (devoir, index) {
+        let classe = "devoir";
+        let etiquette = "Pour le : " + (devoir.date || "non précisé");
+        if (devoir.heure) etiquette += " à " + devoir.heure;
+
+        if (devoir.fait) {
+          classe += " fait";
+        } else if (devoir.date && devoir.date < aujourdhui) {
+          classe += " retard";
+          etiquette = "⚠️ En retard : " + devoir.date;
+        } else if (devoir.date === aujourdhui) {
+          classe += " aujourdhui";
+          etiquette = "🔥 Aujourd'hui" + (devoir.heure ? " à " + devoir.heure : "");
+        }
+
+        if (devoir.heure) etiquette = "⏰ " + etiquette;
+
+        liste.innerHTML +=
+          '<div class="' + classe + '">' +
+            '<div class="infos">' +
+              '<div class="titre">' + echapper(devoir.titre) + '</div>' +
+              '<div class="date">' + etiquette + '</div>' +
+            '</div>' +
+            '<button class="petit valider" data-action="fait" data-index="' + index + '">✔</button>' +
+            '<button class="petit supprimer" data-action="suppr" data-index="' + index + '">✖</button>' +
+          '</div>';
+      });
+
+      const faits = devoirs.filter(function (d) { return d.fait; }).length;
+      document.getElementById("nbFaits").textContent = faits;
+      document.getElementById("nbAFaire").textContent = devoirs.length - faits;
+    }
+
+    // ---------- Ajouter / modifier ----------
+    function ajouterDevoir() {
+      const champTitre = document.getElementById("titre");
+      const champDate = document.getElementById("date");
+      const champHeure = document.getElementById("heure");
+      const titre = champTitre.value.trim();
+
+      if (titre === "") {
+        alert("Écris le nom du devoir 🙂");
+        return;
+      }
+
+      devoirs.push({
+        titre: titre,
+        date: champDate.value,
+        heure: champHeure.value,
+        fait: false,
+        sonne: false
+      });
+      sauvegarder();
+      afficher();
+
+      champTitre.value = "";
+      champDate.value = "";
+      champHeure.value = "";
+    }
+
+    document.getElementById("btnAjouter").addEventListener("click", ajouterDevoir);
+
+    document.getElementById("liste").addEventListener("click", function (e) {
+      const bouton = e.target.closest("button");
+      if (!bouton) return;
+
+      const index = Number(bouton.dataset.index);
+      if (bouton.dataset.action === "fait") {
+        devoirs[index].fait = !devoirs[index].fait;
+      } else if (bouton.dataset.action === "suppr") {
+        devoirs.splice(index, 1);
+      }
+      sauvegarder();
+      afficher();
+    });
+
+    // ---------- Alarmes ----------
+    let audioCtx = null;
+    let minuteurSon = null;
+
+    function activerAlarmes() {
+      try {
+        audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+        audioCtx.resume();
+      } catch (e) {}
+      if ("Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission();
+      }
+      bip(); // petit test pour que tu entendes que ça marche
+      document.getElementById("btnActiver").textContent = "✅ Alarmes activées";
+    }
+
+    function bip() {
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.frequency.value = 880;
+      gain.gain.value = 0.4;
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.3);
+    }
+
+    function sonner(devoir) {
+      devoir.sonne = true;
+      sauvegarder();
+
+      document.getElementById("texteAlarme").textContent = devoir.titre;
+      document.getElementById("alarme").style.display = "flex";
+
+      if (navigator.vibrate) navigator.vibrate([500, 200, 500, 200, 500]);
+
+      try {
+        if ("Notification" in window && Notification.permission === "granted") {
+          new Notification("⏰ Rappel DanielPro", { body: devoir.titre });
+        }
+      } catch (e) {}
+
+      clearInterval(minuteurSon);
+      bip();
+      minuteurSon = setInterval(bip, 700);
+    }
+
+    function arreterAlarme() {
+      clearInterval(minuteurSon);
+      document.getElementById("alarme").style.display = "none";
+    }
+
+    function verifierAlarmes() {
+      // Une seule alarme à la fois
+      if (document.getElementById("alarme").style.display === "flex") return;
+
+      const maintenant = new Date();
+      for (let i = 0; i < devoirs.length; i++) {
+        const d = devoirs[i];
+        if (d.fait || d.sonne || !d.heure) continue;
+
+        const echeance = new Date((d.date || dateDuJour()) + "T" + d.heure);
+        if (maintenant >= echeance) {
+          sonner(d);
+          break;
+        }
+      }
+    }
+
+    document.getElementById("btnActiver").addEventListener("click", activerAlarmes);
+    document.getElementById("btnStop").addEventListener("click", arreterAlarme);
+
+    setInterval(verifierAlarmes, 5000);
+
+    afficher();
+    verifierAlarmes();
+  </script>
+  if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js");
+}
+</body>
+</html>
